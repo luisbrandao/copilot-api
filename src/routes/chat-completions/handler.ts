@@ -77,6 +77,8 @@ export async function handleCompletion(c: Context) {
         duration > 0 ? response.usage.completion_tokens / duration : 0
       const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19)
       const timeFormatted = formatDuration(duration)
+      const contextSize =
+        selectedModel?.capabilities.limits.max_context_window_tokens ?? "N/A"
 
       recordTokenUsage(
         response.model,
@@ -84,7 +86,7 @@ export async function handleCompletion(c: Context) {
         response.usage.completion_tokens,
       )
       consola.info(
-        `${timestamp} - INFO - Tokens - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}, Ctx: ${payload.max_tokens ?? "N/A"}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
+        `${timestamp} - INFO - Tokens - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
 
@@ -127,10 +129,12 @@ export async function handleCompletion(c: Context) {
       const speed = duration > 0 ? totalCompletionTokens / duration : 0
       const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19)
       const timeFormatted = formatDuration(duration)
+      const contextSize =
+        selectedModel?.capabilities.limits.max_context_window_tokens ?? "N/A"
 
       recordTokenUsage(payload.model, totalPromptTokens, totalCompletionTokens)
       consola.info(
-        `${timestamp} - INFO - Tokens (streaming) - Model: ${payload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${payload.max_tokens ?? "N/A"}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
+        `${timestamp} - INFO - Tokens (streaming) - Model: ${payload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
   })

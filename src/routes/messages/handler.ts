@@ -48,6 +48,11 @@ export async function handleCompletion(c: Context) {
     JSON.stringify(openAIPayload),
   )
 
+  // Find the selected model
+  const selectedModel = state.models?.data.find(
+    (model) => model.id === openAIPayload.model,
+  )
+
   if (state.manualApprove) {
     await awaitApproval()
   }
@@ -71,6 +76,8 @@ export async function handleCompletion(c: Context) {
         duration > 0 ? response.usage.completion_tokens / duration : 0
       const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19)
       const timeFormatted = formatDuration(duration)
+      const contextSize =
+        selectedModel?.capabilities.limits.max_context_window_tokens ?? "N/A"
 
       recordTokenUsage(
         response.model,
@@ -78,7 +85,7 @@ export async function handleCompletion(c: Context) {
         response.usage.completion_tokens,
       )
       consola.info(
-        `${timestamp} - INFO - Tokens (Anthropic) - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}, Ctx: ${openAIPayload.max_tokens ?? "N/A"}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
+        `${timestamp} - INFO - Tokens (Anthropic) - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
 
@@ -140,6 +147,8 @@ export async function handleCompletion(c: Context) {
       const speed = duration > 0 ? totalCompletionTokens / duration : 0
       const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19)
       const timeFormatted = formatDuration(duration)
+      const contextSize =
+        selectedModel?.capabilities.limits.max_context_window_tokens ?? "N/A"
 
       recordTokenUsage(
         openAIPayload.model,
@@ -147,7 +156,7 @@ export async function handleCompletion(c: Context) {
         totalCompletionTokens,
       )
       consola.info(
-        `${timestamp} - INFO - Tokens (Anthropic streaming) - Model: ${openAIPayload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${openAIPayload.max_tokens ?? "N/A"}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
+        `${timestamp} - INFO - Tokens (Anthropic streaming) - Model: ${openAIPayload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
   })
