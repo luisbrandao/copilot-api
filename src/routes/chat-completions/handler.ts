@@ -85,7 +85,7 @@ export async function handleCompletion(c: Context) {
         response.usage.prompt_tokens,
         response.usage.completion_tokens,
       )
-      consola.info(
+      console.log(
         `${timestamp} - INFO - Tokens - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
@@ -133,8 +133,8 @@ export async function handleCompletion(c: Context) {
         selectedModel?.capabilities.limits.max_context_window_tokens ?? "N/A"
 
       recordTokenUsage(payload.model, totalPromptTokens, totalCompletionTokens)
-      consola.info(
-        `${timestamp} - INFO - Tokens (streaming) - Model: ${payload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
+      console.log(
+        `${timestamp} - INFO - Tokens - Model: ${payload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
   })

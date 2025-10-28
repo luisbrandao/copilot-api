@@ -84,8 +84,8 @@ export async function handleCompletion(c: Context) {
         response.usage.prompt_tokens,
         response.usage.completion_tokens,
       )
-      consola.info(
-        `${timestamp} - INFO - Tokens (Anthropic) - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
+      console.log(
+        `${timestamp} - INFO - Tokens - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
 
@@ -155,8 +155,8 @@ export async function handleCompletion(c: Context) {
         totalPromptTokens,
         totalCompletionTokens,
       )
-      consola.info(
-        `${timestamp} - INFO - Tokens (Anthropic streaming) - Model: ${openAIPayload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
+      console.log(
+        `${timestamp} - INFO - Tokens - Model: ${openAIPayload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${contextSize}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
   })
