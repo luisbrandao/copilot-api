@@ -10,6 +10,9 @@ RUN bun run build
 FROM oven/bun:1.2.19-alpine AS runner
 WORKDIR /app
 
+# Install tzdata for timezone support
+RUN apk add --no-cache tzdata
+
 COPY ./package.json ./bun.lock ./
 RUN bun install --frozen-lockfile --production --ignore-scripts --no-cache
 
