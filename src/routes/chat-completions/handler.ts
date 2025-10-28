@@ -15,9 +15,22 @@ import {
   type ChatCompletionsPayload,
 } from "~/services/copilot/create-chat-completions"
 
+// Helper function to format duration as H:MM:SS
+function formatDuration(seconds: number): string {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = Math.floor(seconds % 60)
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+  }
+  return `0:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+}
+
 export async function handleCompletion(c: Context) {
   await checkRateLimit(state)
 
+  const startTime = Date.now()
   let payload = await c.req.json<ChatCompletionsPayload>()
   consola.debug("Request payload:", JSON.stringify(payload).slice(-400))
 
@@ -58,13 +71,20 @@ export async function handleCompletion(c: Context) {
 
     // Record token usage for non-streaming responses
     if (response.usage) {
+      const endTime = Date.now()
+      const duration = (endTime - startTime) / 1000 // in seconds
+      const speed =
+        duration > 0 ? response.usage.completion_tokens / duration : 0
+      const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19)
+      const timeFormatted = formatDuration(duration)
+
       recordTokenUsage(
         response.model,
         response.usage.prompt_tokens,
         response.usage.completion_tokens,
       )
       consola.info(
-        `Tokens - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}`,
+        `${timestamp} - INFO - Tokens - Model: ${response.model}, In: ${response.usage.prompt_tokens}, Out: ${response.usage.completion_tokens}, Ctx: ${payload.max_tokens ?? "N/A"}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
 
@@ -102,9 +122,15 @@ export async function handleCompletion(c: Context) {
 
     // Record token usage after streaming completes
     if (totalPromptTokens > 0 || totalCompletionTokens > 0) {
+      const endTime = Date.now()
+      const duration = (endTime - startTime) / 1000 // in seconds
+      const speed = duration > 0 ? totalCompletionTokens / duration : 0
+      const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19)
+      const timeFormatted = formatDuration(duration)
+
       recordTokenUsage(payload.model, totalPromptTokens, totalCompletionTokens)
       consola.info(
-        `Tokens (streaming) - Model: ${payload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}`,
+        `${timestamp} - INFO - Tokens (streaming) - Model: ${payload.model}, In: ${totalPromptTokens}, Out: ${totalCompletionTokens}, Ctx: ${payload.max_tokens ?? "N/A"}, Time: ${timeFormatted}, Speed: ${speed.toFixed(2)} t/s`,
       )
     }
   })
